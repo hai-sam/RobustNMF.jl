@@ -2,7 +2,12 @@ module DataType
 
 using Random, LinearAlgebra, Statistics
 
+"""
+Generate a non-negative matrix X ∈ R^{m×n} by sampling non-negative factors W (m×r)
+and H (r×n) and returning (X, W, H)
 
+Optionally add Gaussian noise (clipped at 0 to keep non-negativity).
+"""
 function generate_synthetic_data(m::Int, n::Int, rank::Int=10, 
     noise_level::Float64=0.0, seed=nothing)
     
@@ -25,3 +30,4 @@ function generate_synthetic_data(m::Int, n::Int, rank::Int=10,
     return X, W, H
 end
 end
+
