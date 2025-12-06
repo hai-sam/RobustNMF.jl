@@ -1,5 +1,9 @@
 module RobustNMF
 
+include("Data.jl")
+
+using .Data
+
 # Write your package code here.
 
 """
