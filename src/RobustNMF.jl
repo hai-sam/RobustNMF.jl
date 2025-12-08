@@ -4,16 +4,12 @@ include("Data.jl")
 
 using .Data
 
-# Write your package code here.
-
-"""
-    timestwo(x)
-
-Multiply the input `x` by two.
-"""
-timestwo(x) = 2 * x
-
-export timestwo
+export
+generate_synthetic_data, 
+add_gaussian_noise!, 
+add_sparse_outliers!, 
+normalize_nonnegative!, 
+load_image_folder
 
 
 end # module RobustNMF

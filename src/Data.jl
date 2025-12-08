@@ -1,9 +1,19 @@
-module DataType
+module Data
 
 using Random, LinearAlgebra, Statistics
-using FileIO, ImageIO
-using ColorTypes, Images
+using FileIO: load
+using ImageIO
+using Images: channelview, colorview
+using ColorTypes: Gray
 using Base: basename
+
+export
+generate_synthetic_data, 
+add_gaussian_noise!, 
+add_sparse_outliers!, 
+normalize_nonnegative!, 
+load_image_folder
+
 
 """
 
@@ -12,7 +22,7 @@ using Base: basename
 Generate a non-negative matrix `X ∈ R^{m×n}` by sampling non-negative factors `W (m×rank)` and
 `H (rank×n)` and returning `(X, W, H)`.
 
-Optionall add Gaussian noise with standard deviation `noise_level` and clip the result at `0.0`
+Optionally add Gaussian noise with standard deviation `noise_level` and clip the result at `0.0`
 to keep `X` non-negative.
 """
 function generate_synthetic_data(m::Int, n::Int; rank::Int=10, 
@@ -76,7 +86,7 @@ end
     add_sparse_outliers!(X::AbstractMatrix; fraction::Float64=0.01, magnitude::Float64=5.0, 
     seed=nothing)
 
-Add sparce, large positive outliers to a fraction of the entries of `X` in-place.
+Add sparcse, large positive outliers to a fraction of the entries of `X` in-place.
 
 `fraction` controls the proportion of entries that are modified.
 Each selected entry is increased by a random value drawn from `Uniform(0, magnitude)`.
@@ -144,7 +154,7 @@ end
     load_image_folder(dir::AbstractString; pattern::AbstractString="*.png", normalize::Bool=true)
 
 Load all images in `dir` whose filenames match `pattern`, convert them to grayscale if needed,
-flatten them, and stach them as columns of a data matrix `X`.
+flatten them, and stack them as columns of a data matrix `X`.
 
 Returns a tuple `(X, (height, width), filenames)`, where:
 - `X :: Matrix{Float64}` has one column per image,
@@ -160,7 +170,7 @@ function load_image_folder(dir::AbstractString; pattern::AbstractString="*.png",
     files = sort(readdir(dir; join=true))
 
     # Keep only those whose path contains the pattern
-    files = filter(f -> occursin(r"$pattern", f), files)
+    files = filter(f -> endswith(lowercase(f), lowercase(pattern)), files)
 
     if isempty(files)
         error("No files matching pattern '$pattern' found in $dir")
