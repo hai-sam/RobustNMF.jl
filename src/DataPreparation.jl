@@ -3,10 +3,10 @@ module DataPreparation
 using Random
 
 """
-generate_synthetic_data(m, n, r; seed=42)
+`generate_synthetic_data(m, n, r; seed=42)`
 
-Generate a non-negative synthetic matrix X\_clean ∈ ℝ^{m×n} with approximate rank r.
-The function samples W\_true ∈ ℝ^{m×r} and H\_true ∈ ℝ^{r×n} from Uniform(0, 1) and returns:
+Generate a non-negative synthetic matrix `X_clean` ∈ ℝ^{m×n} with approximate rank r.
+The function samples `W_true` ∈ ℝ^{m×r} and `H_true` ∈ ℝ^{r×n} from Uniform(0, 1) and returns:
 
     X_clean = W_true * H_true
 
@@ -32,14 +32,35 @@ function generate_synthetic_data(m::Int, n::Int, r::Int; seed::Integer = 42)
 end
 
 """
-    add_noise_and_outliers(X_clean;
-                           noise_std = 0.0,
-                           outlier_fraction = 0.0,
-                           outlier_scale = 10.0,
-                           seed = 42)
+`add_noise_and_outliers(X_clean;
+                       noise_std = 0.0,
+                       outlier_fraction = 0.0,
+                       outlier_scale = 10.0,
+                       seed = 42)`
 
-Add Gaussian noise and large positive outliers to `X_clean`.
-Returns a perturbed and non negative matrix.
+Add controlled noise and sparse positive outliers to the non-negative matrix `X_clean`.  
+Gaussian noise is added first, and all negative entries are clipped to zero.  
+A fraction of randomly selected entries is then replaced with large positive outliers.
+
+Arguments
+- `X_clean`: Input non-negative matrix to be perturbed.
+
+Keyword Arguments
+- `noise_std::Float64 = 0.0`  
+  Standard deviation of the Gaussian noise. Set to zero to disable noise.
+
+- `outlier_fraction::Float64 = 0.0`  
+  Fraction of entries to replace with large outliers. Typical values are between 0.0 and 0.05.
+
+- `outlier_scale::Float64 = 10.0`  
+  Outlier magnitude as a multiplier of the current maximum value in the matrix.
+
+- `seed::Integer = 42`  
+  Random seed for reproducibility.
+
+Returns
+A perturbed non-negative matrix of the same size as `X_clean`.
+
 """
 function add_noise_and_outliers(X_clean;
                                 noise_std::Float64 = 0.0,
@@ -77,14 +98,30 @@ function add_noise_and_outliers(X_clean;
 end
 
 """
-    normalize_data(X; clip_at_zero = true, mode = :none)
+`normalize_data(X; clip_at_zero = true, mode = :none)`
 
-Normalize matrix `X` and return a new matrix.
+Normalize the matrix `X` according to the selected mode and return a new matrix.
 
-Modes:
-    :none        no scaling
-    :global_max  divide by global maximum
-    :column_max  divide each column by its maximum
+If `clip_at_zero` is true, all negative entries are replaced with zero before normalization.
+
+Normalization modes:
+- `:none`         return the matrix unchanged (except optional clipping)
+- `:global_max`   divide all entries by the global maximum value
+- `:column_max`   divide each column by its own maximum
+
+Arguments
+- `X`: Input matrix to normalize.
+
+Keyword Arguments
+- `clip_at_zero::Bool = true`  
+  Apply non-negativity correction before normalization.
+
+- `mode::Symbol = :none`  
+  Normalization strategy to apply (`:none`, `:global_max`, `:column_max`).
+
+Returns  
+A normalized matrix of the same size as `X`.
+
 """
 function normalize_data(X;
                         clip_at_zero::Bool = true,
